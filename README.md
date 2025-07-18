@@ -84,6 +84,27 @@ plot_occurrences_over_time(
   start_year = 1950,
   end_year = 2022,
   interval = 10  # e.g., decadal bins
+
+## Citation
+
+```{r}
+
+citation("biofetchR")
+
+```
+
+## License
+
+```{r}
+
+MIT © Darren Stuart
+
+```
+
+## Bug Reports
+
+Please open issues or feature requests at:
+https://github.com/Dstuart505/biofetchR/issues
 )
 
 ```
