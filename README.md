@@ -85,9 +85,10 @@ plot_occurrences_over_time(
   end_year = 2022,
   interval = 10  # e.g., decadal bins
 
-```{r}
+```
 
 ## Citation
+
 ```{r}
 citation("biofetchR")
 
@@ -107,5 +108,4 @@ Please open issues or feature requests at:
 https://github.com/Dstuart505/biofetchR/issues
 )
 
-```
 
