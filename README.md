@@ -11,41 +11,56 @@ spatial processing, and standardized export of GBIF occurrence data
 tailored for large-scale biodiversity, invasion biology, and
 macroecological research.
 
-## Key Features
+## Key Features of `biofetchR`
 
-Authenticated GBIF downloads across multiple species × country
-combinations, with robust retry and error handling.
+- **Automated GBIF Downloads**  
+  Authenticated, high-throughput GBIF data retrieval across multiple
+  *species × country* combinations, with built-in retry logic and
+  resilient error handling.
 
-Pre-download presence verification to minimize redundant queries and
-optimize data retrieval efficiency.
+- **Smart Query Optimization**  
+  Pre-download occurrence checks minimize redundant queries, ensuring
+  efficient and targeted data extraction.
 
-Flexible spatial joins with Global Administrative Areas (GADM) at
-multiple administrative levels, and optional marine Exclusive Economic
-Zone (EEZ) joins for marine taxa.
+- **Flexible Spatial Integration**  
+  Supports spatial joins with Global Administrative Areas (GADM) at
+  user-specified administrative levels, as well as marine joins using
+  Exclusive Economic Zones (EEZ) for oceanic taxa.
 
-Spatial thinning algorithms to mitigate spatial sampling bias,
-customizable to user-specified distances and diagnostics.
+- **Customizable Spatial Thinning**  
+  Implements spatial thinning to address sampling bias, with
+  user-defined distance thresholds and optional diagnostic outputs.
 
-Time-series data handling, enabling occurrence filtering and mapping
-across user-defined temporal blocks, including multi-decadal
-aggregation.
+- **Temporal Filtering and Aggregation**  
+  Enables occurrence filtering across user-defined temporal blocks
+  (e.g., decades), supporting time-series analyses and cumulative
+  richness calculations.
 
-Automated export of clean, standardized CSV files for each species ×
-country (or marine zone) combination, facilitating downstream analyses.
+- **Structured Export Outputs**  
+  Automatically saves cleaned, standardized `.csv` files for each
+  *species × country* or *species × EEZ* combination—ready for
+  downstream modeling or synthesis.
 
-Support for generating publication-quality temporal and spatial
-visualizations of species richness and occurrence patterns using
-ggplot2.
+- **High-Quality Visualization Tools**  
+  Provides built-in functions to generate publication-ready static and
+  animated maps of species richness and occurrence using `ggplot2`.
 
-Cache management and modular workflow components for reproducible,
-high-throughput processing.
+- **Efficient Caching and Modularity**  
+  Modular functions support reproducible workflows and enable scalable
+  biodiversity pipelines with smart caching and intermediate result
+  storage.
 
-Seamless integration with species trait and environmental data pipelines
-to enable advanced ecological and biogeographic modeling.
+- **Downstream Compatibility**  
+  Designed for seamless integration with trait databases, environmental
+  predictors, and phylogenetic models for ecological, invasion, and
+  biogeographic research.
 
-biofetchR provides a robust, modular foundation for integrating spatial,
-temporal, and taxonomic filters in ecological data workflows, promoting
-reproducibility and scalability in biodiversity science.
+------------------------------------------------------------------------
+
+`biofetchR` offers a flexible, scalable foundation for combining
+spatial, temporal, and taxonomic data in reproducible biodiversity
+workflows—supporting a wide range of applications, from macroecology to
+conservation planning.
 
 ## Installation
 
@@ -57,9 +72,48 @@ You can install the development version of biofetchR from
 remotes::install_github("Dstuart505/biofetchR")
 ```
 
-## Example
+## Mapping Terrestrial Species Richness Across Administrative Regions
 
-This is a basic example
+Understanding terrestrial biodiversity patterns requires organizing
+occurrence data within consistent geographic boundaries. The Global
+Administrative Areas (GADM) database provides high-resolution political
+boundaries across multiple levels—from national borders (Level 0) to
+subnational units such as states, provinces, or districts (Levels 1 and
+2). This package leverages GADM units to spatially aggregate species
+occurrences and visualize changes in species richness across space and
+time.
+
+The GADM workflow is flexible in spatial scale: users can specify which
+administrative level to use when mapping species richness, making it
+suitable for both global and regional analyses. For example, Level 0
+enables country-level comparisons, while Levels 1 or 2 allow finer-scale
+exploration of biodiversity trends within nations.
+
+## Use Cases
+
+This workflow is designed to support a broad range of applications in
+biodiversity science and environmental management. It can be used to:
+
+- Detect regional hotspots of species richness or under-sampled areas in
+  need of survey effort.
+
+- Track temporal shifts in biodiversity, such as range expansions or
+  contractions over decades.
+
+- Support biogeographic comparisons across administrative boundaries for
+  conservation planning.
+
+- Quantify patterns of non-native or invasive species richness,
+  informing biosecurity risk assessments and monitoring the geographic
+  footprint of biological invasions.
+
+- Integrate with ecological, climatic, or socio-political datasets that
+  are also structured around GADM units (e.g., land cover, governance,
+  GDP, policy variables).
+
+This GADM-based mapping framework offers a reproducible and scalable
+foundation for understanding terrestrial species distributions across
+multiple disciplines and spatial scales.
 
 ``` r
 
@@ -71,24 +125,18 @@ user <- "your_username"
 pwd <- "your_password"
 email <- "your_email_address"
 
-# --- Define Output Directories ---
-# Specify where processed GBIF data and outputs will be saved
-output_dir_terrestrial <- "D:/datasets/output_gbif_terrestrial"
-output_dir_marine <- "D:/datasets/output_gbif_marine"  # reserved for marine species pipeline
-
 # --- Prepare Terrestrial Species × Country Data Frame ---
 # Define a tibble with species names and ISO2 country codes for batch processing
-# Includes diverse taxa: mammals, plants, insects, freshwater species, birds, herpetofauna, fungi, and pathogens
 test_terrestrial <- tibble::tibble(
   species = c(
-    "Rattus norvegicus", "Sus scrofa",               # mammals
-    "Lantana camara", "Imperata cylindrica",         # plants
-    "Harmonia axyridis", "Aedes aegypti",            # insects
+    "Rattus norvegicus", "Sus scrofa",                         # mammals
+    "Lantana camara", "Imperata cylindrica",                   # plants
+    "Harmonia axyridis", "Aedes aegypti",                      # insects
     "Salmo trutta", "Cyprinus carpio", "Eichhornia crassipes", # freshwater species
-    "Sturnus vulgaris", "Columba livia",             # birds
-    "Rhinella marina", "Trachemys scripta elegans",  # amphibians and reptiles
-    "Cryphonectria parasitica",                       # fungi
-    "Batrachochytrium dendrobatidis"                  # amphibian pathogen
+    "Sturnus vulgaris", "Columba livia",                       # birds
+    "Rhinella marina", "Trachemys scripta elegans",            # amphibians and reptiles
+    "Cryphonectria parasitica",                                # fungi
+    "Batrachochytrium dendrobatidis"                           # amphibian pathogen
   ),
   iso2c = c(
     "US", "AU", "IN", "BR", "DE", "CO",
@@ -97,58 +145,154 @@ test_terrestrial <- tibble::tibble(
   )
 )
 
-# --- Run Terrestrial GBIF Processing Pipeline ---
-# Downloads occurrences, performs spatial joins with GADM polygons,
-# applies spatial thinning at 5 km distance to reduce sampling bias,
-# exports standardized CSVs, and returns results in memory.
-all_data_gadm <- process_gbif_gadm_pipeline(
-  df = test_terrestrial,
-  output_dir = output_dir_terrestrial,
-  user = user,
-  pwd = pwd,
-  email = email,
-  apply_thinning = TRUE,        # Enable spatial thinning to reduce oversampling bias
-  dist_km = 5,                  # Minimum distance between retained points (km)
-  batch_size = 3,               # Number of species-country combos per GBIF download batch
-  return_all_results = TRUE,    # Return combined processed data as an sf object
-  export_summary = TRUE,        # Generate summary tables for each batch
-  store_in_memory = TRUE,       # Keep results in memory for immediate use
-  use_planar = FALSE            # Use spherical geometry (recommended for global data)
-)
+# =============================================================================
+# Run GBIF processing pipeline for terrestrial species using GADM Level 1 units
+# This step:
+#   - Downloads GBIF occurrence data (if needed)
+#   - Cleans and optionally thins coordinates
+#   - Joins occurrences to GADM Level 1 polygons
+#   - Generates summary tables per species × country × admin unit
+#   - Returns the full processed dataset if `return_all_results = TRUE`
+# =============================================================================
 
-# --- Define Temporal Blocks for Richness Mapping ---
-# Custom time blocks covering mid-20th century to present
-time_blocks <- list(
-  "1935_1964" = 1935:1964,
-  "1965_1994" = 1965:1994,
-  "1995_2024" = 1995:2024
+all_data_gadm <- process_gbif_gadm_pipeline(
+  df = test_terrestrial,            # Input dataframe: must include 'species' and 'iso2c' columns
+  output_dir = output_dir,          # Where to save GBIF downloads and cleaned outputs
+  user = user,                      # GBIF user credentials (username)
+  pwd = pwd,                        # GBIF password
+  email = email,                    # GBIF email (used to receive download notifications)
+  apply_thinning = TRUE,            # Apply spatial thinning to reduce sampling bias
+  dist_km = 5,                      # Minimum distance (km) between retained occurrence points
+  batch_size = 3,                   # Number of species to process per GBIF batch (limits API load)
+  return_all_results = TRUE,        # Return full combined GBIF dataset in memory
+  export_summary = TRUE,            # Export per-species × country × GADM1 summary tables to CSV
+  store_in_memory = TRUE,           # Retain intermediate GBIF downloads and joins in memory
+  use_planar = FALSE,               # Use geographic (lon/lat) coordinates, not planar CRS, for thinning
+  gadm_unit = 1                     # GADM level for spatial join (0 = country, 1 = admin-1, etc.)
 )
 
 # --- Generate Global Species Richness Maps by Time Block ---
 # Produces PNG maps and optionally an animated GIF showing temporal richness changes
-plot_global_gadm_richness_by_time(
-  data = all_data_gadm,           # Combined species occurrence data
-  start_year = 1930,             # Start year for filtering data
-  end_year = 2020,               # End year for filtering data
-  block_length = 10,             # Length of each temporal block (years)
-  output_dir = output_dir_terrestrial,
-  gadm_cache_dir = NULL,         # Default cache location for GADM shapefiles
-  include_antarctica = TRUE,     # Include Antarctica polygons in maps
-  annotate_blocks = TRUE,        # Overlay period labels on each map
-  animated_gif = TRUE,           # Save an animated GIF of the temporal sequence (requires 'magick')
-  quiet = FALSE                  # Display progress messages and alerts
+plot_gadm_richness_by_time(
+  data = all_data_gadm,               # Main input dataset: species richness per GADM unit × period
+  gadm_cache_dir = "gadm_cache",      # Directory where GADM Level 1 shapefiles are cached
+  output_dir = "outputs/",            # Folder to save PNG maps and GIFs
+  start_year = 1930,                  # Start year for temporal blocks (inclusive)
+  end_year = 2020,                    # End year for temporal blocks (inclusive)
+  block_length = 10,                  # Duration of each time block in years (e.g. 10 = decadal)
+  include_antarctica = FALSE,         # Exclude Antarctica to avoid empty or misleading polygons
+  crs_proj = "+proj=robin",           # Use Robinson projection for visually balanced global maps
+  viridis_option = "plasma",          # Color scale for richness gradient (e.g. "viridis", "magma")
+  show_graticules = FALSE,            # Disable lat/lon graticule gridlines for cleaner output
+  show_plots = TRUE,                  # Show plots in viewer during execution (set FALSE for batch mode)
+  animated_gif = TRUE,                # Generate animated GIF across time blocks
+  cumulative = TRUE                   # Show cumulative richness (not just new additions per block)
 )
 ```
 
-## Temporal Species Richness Animation
+## Visualizing Temporal Changes in Species Richness
 
-The animation below visualizes invasive species richness changes across
-global GADM Level 1 regions over time.
+The animated map below illustrates changes in species richness across
+global administrative regions (GADM Level 1) over decadal time blocks.
+It highlights spatial and temporal patterns in species accumulation and
+spread.
 
-This GIF was generated using the `plot_global_gadm_richness_by_time()`
-function.
+This GIF was generated using the plot_global_gadm_richness_by_time()
+function included in the package.
 
-<img src="inst/figures/richness_animation.gif" width="700px" style="display: block; margin: auto;" />
+<img src="inst/figures/richness_map_gadm_animated.gif" width="700px" style="display: block; margin: auto;" />
+
+## Mapping Marine Species Richness Across EEZs
+
+Marine biodiversity is spatially structured in complex ways, shaped by
+ocean currents, temperature gradients, and human activity. Unlike
+terrestrial environments, the ocean lacks clear political or ecological
+boundaries for organizing biodiversity data. To address this, Exclusive
+Economic Zones (EEZs)—maritime regions extending up to 200 nautical
+miles from a nation’s coastline—are widely used as standardized units
+for marine ecological analyses, policy planning, and conservation
+assessments.
+
+This package enables the aggregation and visualization of marine species
+occurrence data within EEZ boundaries, allowing users to explore
+temporal patterns in species richness across global marine regions.
+Whether studying shifts in species distributions, emerging biodiversity
+hotspots, or long-term trends in ocean biota, EEZ-based mapping provides
+a flexible and scalable framework for analysis.
+
+``` r
+
+# Example marine invasive species list for testing EEZ-based richness mapping
+# These species occur exclusively in marine environments, so no ISO2 country code is needed
+
+test_marine <- tibble::tibble(
+  species = c(
+    "Mytilus galloprovincialis",  # Mediterranean mussel
+    "Carcinus maenas",            # European green crab
+    "Perna viridis",              # Asian green mussel
+    "Crassostrea gigas",          # Pacific oyster
+    "Halicarcinus planatus",      # Hairy handed crab
+    "Pterois volitans",           # Red lionfish
+    "Scomberomorus commerson",    # Narrow-barred Spanish mackerel
+    "Lates calcarifer",           # Barramundi
+    "Seriola lalandi",            # Yellowtail kingfish
+    "Thunnus albacares"           # Yellowfin tuna
+  )
+)
+
+# Run marine EEZ-only GBIF processing pipeline
+# This function handles GBIF download, spatial joining to EEZs, and optional spatial thinning.
+# It is customized for marine species by skipping country filters and using EEZ joins only.
+
+all_data_eez <- process_gbif_eez_pipeline(
+  species_vec = test_marine$species,  # Vector of marine species names (no country codes needed)
+  output_dir = output_dir_marine,     # Directory where outputs (CSV + summary) will be saved
+  user = user,                        # GBIF user credentials (username)
+  pwd = pwd,                          # GBIF password
+  email = email,                      # GBIF email (required for download requests)
+
+  apply_thinning = TRUE,              # Whether to apply spatial thinning (to reduce sampling bias)
+  dist_km = 5,                        # Minimum distance (in km) between retained points during thinning
+  batch_size = 3,                     # Number of species per GBIF download batch (smaller batches help                                        # avoid API timeouts)    
+
+  return_all_results = TRUE,          # If TRUE, returns all processed data as a list
+  export_summary = TRUE,              # If TRUE, saves a CSV summary table 
+  store_in_memory = TRUE,             # If TRUE, keeps full processed datasets in R memory 
+  use_planar = FALSE                  # Whether to use planar projection for spatial joins
+)
+
+# Generate animated global maps of invasive marine species richness over time
+# This function aggregates richness by EEZ and time block, then saves maps as PNGs and an animated GIF.
+
+plot_global_eez_richness_by_time(
+  data = all_data_eez,                # Cleaned GBIF + EEZ-joined data
+  output_dir = output_dir,            # Directory to save PNGs and optional animated GIF
+  start_year = 1930,                  # Start year of the time series (inclusive)
+  end_year = 2020,                    # End year of the time series (inclusive)
+  block_length = 10,                  # Length of each time block in years (e.g., 1930–1939, 1940–1949)
+
+  crs_proj = "+proj=wintri",          # Projection for global map 
+  viridis_option = "viridis",         # Viridis color palette used for richness scale 
+  show_graticules = FALSE,            # Disable graticule gridlines
+  show_plots = TRUE,                  # Display each map interactively as it is generated
+  animate = TRUE,                     # Save animated GIF of richness changes over time
+  cumulative = FALSE                  # If TRUE, shows cumulative richness per EEZ
+)
+```
+
+## Visualizing Temporal Changes in Marine Species Richness
+
+The animated map below illustrates changes in invasive marine species
+richness across global Exclusive Economic Zones (EEZs) over decadal time
+blocks.
+
+This GIF was generated using the plot_global_eez_richness_by_time()
+function included in the package. The function automatically joins
+marine GBIF records to EEZ boundaries, aggregates richness by time
+period, and produces a series of publication-ready maps and an animated
+visualization.
+
+<img src="inst/figures/richness_map_eez_animated.gif" width="700px" style="display: block; margin: auto;" />
 
 ## License
 
